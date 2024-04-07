@@ -1,7 +1,7 @@
 # Copyright 2024 Zorxx Software. All rights reserved.
 if(IDF_TARGET)
     idf_component_register(SRCS "bmp180.c" "bmp180_calculate.c"
-                           INCLUDE_DIRS "."
+                           INCLUDE_DIRS "." "include"
                            PRIV_REQUIRES "driver")
     return()
 endif()

@@ -1,9 +1,10 @@
+/* Copyright 2024 Zorxx Software. All rights reserved. */
 #ifndef _BMP180_PRIVATE_H
 #define _BMP180_PRIVATE_H
 
 #include <stdint.h>
 
-#if 1 //defined(BMP180_DEBUG)
+#if defined(BMP180_DEBUG)
    #define DBG(...) fprintf(stderr, __VA_ARGS__)
 #else
    #define DBG(...)

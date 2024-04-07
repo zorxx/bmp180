@@ -1,3 +1,4 @@
+/* Copyright 2024 Zorxx Software. All rights reserved. */
 #include <stdbool.h>
 #include <stdio.h>
 #include <inttypes.h>

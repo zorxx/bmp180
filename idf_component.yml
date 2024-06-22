@@ -1,4 +1,4 @@
-version: "1.0.0"
+version: "1.1.0"
 description: "BMP180 Digital Pressure Sensor (temperature, barometric pressure, i2c)" 
 url: "https://github.com/zorxx/bmp180"
 license: "MIT"

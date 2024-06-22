@@ -3,13 +3,13 @@
 #define _BMP180_PRIVATE_H
 
 #include <stdint.h>
-
 #if defined(BMP180_DEBUG)
    #define DBG(...) fprintf(stderr, __VA_ARGS__)
 #else
    #define DBG(...)
 #endif
 #define MSG(...) fprintf(stderr, __VA_ARGS__)
+#include "i2c_private.h"
 
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 

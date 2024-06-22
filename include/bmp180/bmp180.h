@@ -16,10 +16,16 @@
 #ifndef __BMP180_H__
 #define __BMP180_H__
 
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdbool.h>
-#include <driver/i2c.h>
-#include <esp_err.h>
+
+#if defined(__linux__)
+   #include "bmp180/i2c_linux.h"
+#elif defined(ESP_PLATFORM)
+   #include "bmp180/i2c_esp.h"
+#else
+   #error "Supported OS type not detected"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,19 +49,19 @@ typedef void *bmp180_t;
 
 /**
  * @brief Initialize device descriptor
- * @param port I2C port number (e.g. I2C_NUM_1)
+ * @param config OS/platform-specific configuration structure (e.g. see bmp180_linux.h or bmp180_esp.h) 
  * @param i2c_address I2C slave address of BMP180 device (likely BMP180_DEVICE_ADDRESS)
  * @param mode query mode
  * @return bmp180_t on success, NULL on failure
  */
-bmp180_t bmp180_init(i2c_port_t port, uint8_t i2c_address, bmp180_mode_t mode);
+bmp180_t bmp180_init(i2c_lowlevel_config *config, uint8_t i2c_address, bmp180_mode_t mode);
 
 /**
  * @brief Free device descriptor
  * @param bmp obtained from a successful bmp180_init() call
  * @return `ESP_OK` on success
  */
-esp_err_t bmp180_free(bmp180_t bmp);
+bool bmp180_free(bmp180_t bmp);
 
 /**
  * @brief Measure temperature and pressure
@@ -64,7 +70,7 @@ esp_err_t bmp180_free(bmp180_t bmp);
  * @param[out] pressure Pressure in Pa
  * @return `ESP_OK` on success
  */
-esp_err_t bmp180_measure(bmp180_t bmp, float *temperature, uint32_t *pressure);
+bool bmp180_measure(bmp180_t bmp, float *temperature, uint32_t *pressure);
 
 #ifdef __cplusplus
 }

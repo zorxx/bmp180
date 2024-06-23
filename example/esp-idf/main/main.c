@@ -24,7 +24,7 @@ void app_main(void)
    ESP_ERROR_CHECK(nvs_flash_init());
    ESP_ERROR_CHECK(esp_event_loop_create_default() );
 
-   i2c_lowlevel_config config;
+   i2c_lowlevel_config config = {0};
    config.port = ESP_I2C_PORT;
    config.pin_sda = ESP_I2C_SDA;
    config.pin_scl = ESP_I2C_SCL;

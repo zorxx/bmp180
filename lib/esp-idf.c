@@ -23,14 +23,6 @@ typedef struct
 i2c_lowlevel_context i2c_ll_init(uint8_t i2c_address, uint32_t i2c_speed, uint32_t i2c_timeout_ms,
                                  i2c_lowlevel_config *config)
 {
-   i2c_master_bus_config_t bus_cfg = {
-      .clk_source = I2C_CLK_SRC_DEFAULT,
-      .i2c_port = config->port,
-      .sda_io_num = config->pin_sda,
-      .scl_io_num = config->pin_scl,
-      .glitch_ignore_cnt = 7,
-      .flags.enable_internal_pullup = true,      
-   };
    i2c_device_config_t dev_cfg = {
       .dev_addr_length = I2C_ADDR_BIT_LEN_7,
       .device_address = i2c_address,
@@ -43,8 +35,25 @@ i2c_lowlevel_context i2c_ll_init(uint8_t i2c_address, uint32_t i2c_speed, uint32
    memcpy(&l->config, config, sizeof(l->config));
    l->timeout = i2c_timeout_ms;
 
-   if(i2c_new_master_bus(&bus_cfg, &l->bus) != ESP_OK
-   || i2c_master_bus_add_device(l->bus, &dev_cfg, &l->device) != ESP_OK)
+   if(NULL == config->bus)
+   {
+      i2c_master_bus_config_t bus_cfg = {
+         .clk_source = I2C_CLK_SRC_DEFAULT,
+         .i2c_port = config->port,
+         .sda_io_num = config->pin_sda,
+         .scl_io_num = config->pin_scl,
+         .glitch_ignore_cnt = 7,
+         .flags.enable_internal_pullup = true,      
+      };
+      if(i2c_new_master_bus(&bus_cfg, &l->bus) != ESP_OK)
+      {
+         SERR("Failed to initialize I2C bus");
+         free(l);
+         return NULL;
+      }
+   }
+
+   if(i2c_master_bus_add_device(l->bus, &dev_cfg, &l->device) != ESP_OK)
    {
       SERR("I2C initialization failed");
       free(l);

@@ -8,7 +8,7 @@ endif()
 
 cmake_minimum_required(VERSION 3.5)
 set(project bmp180)
-project(${project} LANGUAGES C VERSION 1.1.0)
+project(${project} LANGUAGES C VERSION 1.2.0)
 
 add_library(bmp180 STATIC lib/bmp180.c lib/bmp180_calculate.c lib/linux.c)
 target_include_directories(bmp180 PUBLIC include)

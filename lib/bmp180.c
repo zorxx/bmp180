@@ -32,11 +32,11 @@ typedef struct
 static bool bmp180_get_uncompensated_temperature(bmp180_context_t *ctx, int32_t *ut)
 {
    uint8_t d[2] = { BMP180_MEASURE_TEMP };
-   if(!i2c_ll_write(ctx->i2c_ctx, BMP180_CONTROL_REG, d, sizeof(uint8_t)))
+   if(!i2c_ll_write_reg(ctx->i2c_ctx, BMP180_CONTROL_REG, d, sizeof(uint8_t)))
       return false;
 
-   bmp_delay_us(4500 + BMP180_DELAY_BUFFER);
-   if(!i2c_ll_read(ctx->i2c_ctx, BMP180_OUT_MSB_REG, d, sizeof(d)))
+   sys_delay_us(4500 + BMP180_DELAY_BUFFER);
+   if(!i2c_ll_read_reg(ctx->i2c_ctx, BMP180_OUT_MSB_REG, d, sizeof(d)))
       return false;
    uint32_t r = ((uint32_t)d[0] << 8) | d[1];
    *ut = r;
@@ -48,11 +48,11 @@ static bool bmp180_get_uncompensated_pressure(bmp180_context_t *ctx, uint32_t *u
 {
    uint8_t oss = ctx->mode;
    uint8_t d[3] = { BMP180_MEASURE_PRESS | (oss << 6), 0 };
-   if(!i2c_ll_write(ctx->i2c_ctx, BMP180_CONTROL_REG, d, sizeof(uint8_t)))
+   if(!i2c_ll_write_reg(ctx->i2c_ctx, BMP180_CONTROL_REG, d, sizeof(uint8_t)))
       return false;
    
-   bmp_delay_us(ctx->measurement_delay + BMP180_DELAY_BUFFER);
-   if(!i2c_ll_read(ctx->i2c_ctx, BMP180_OUT_MSB_REG, d, sizeof(d)))
+   sys_delay_us(ctx->measurement_delay + BMP180_DELAY_BUFFER);
+   if(!i2c_ll_read_reg(ctx->i2c_ctx, BMP180_OUT_MSB_REG, d, sizeof(d)))
       return false;
 
    uint32_t r = ((uint32_t)d[0] << 16) | ((uint32_t)d[1] << 8) | d[2];
@@ -68,7 +68,7 @@ static bool bmp180_read_calibration(bmp180_context_t *ctx)
    {
       uint8_t d[] = { 0, 0 };
       uint8_t reg = BMP180_CALIBRATION_REG + (i * 2);
-      if(!i2c_ll_read(ctx->i2c_ctx, reg, d, sizeof(d)))
+      if(!i2c_ll_read_reg(ctx->i2c_ctx, reg, d, sizeof(d)))
          return false;
       ctx->cal.raw[i] = ((uint16_t) d[0]) << 8 | (d[1]);
       if(ctx->cal.raw[i] == 0)
@@ -89,14 +89,20 @@ bmp180_t bmp180_init(i2c_lowlevel_config *config, uint8_t i2c_address, bmp180_mo
 {
    bmp180_context_t *ctx;
    uint8_t id = 0;
-   bool success = true;
+   bool success = false;
 
-   ctx = (bmp180_context_t *) calloc(1, sizeof(*ctx));
+   ctx = (bmp180_context_t *) malloc(sizeof(*ctx));
    if(NULL == ctx)
       return NULL;
 
    ctx->i2c_ctx = i2c_ll_init((i2c_address == 0) ? BMP180_DEVICE_ADDRESS : i2c_address,
       I2C_SPEED, I2C_TRANSFER_TIMEOUT, config);
+   if(NULL == ctx->i2c_ctx)
+   {
+      SERR("[%s] i2c initialization failed", __func__);
+      free(ctx);
+      return NULL; 
+   }
    ctx->mode = mode;
    switch(mode)
    {
@@ -110,20 +116,19 @@ bmp180_t bmp180_init(i2c_lowlevel_config *config, uint8_t i2c_address, bmp180_mo
          return NULL; 
    }
 
-   if(!i2c_ll_read(ctx->i2c_ctx, BMP180_VERSION_REG, &id, sizeof(id))
+   if(!i2c_ll_read_reg(ctx->i2c_ctx, BMP180_VERSION_REG, &id, sizeof(id))
    || id != BMP180_CHIP_ID)
    {
       SERR("Invalid device ID (0x%02x, expected 0x%02x)", id, BMP180_CHIP_ID);
-      success = false;
    }
    else if(!bmp180_read_calibration(ctx))
    {
       SERR("Failed to read calibration");
-      success = false;
    }
    else
    {
       SDBG("Initialization successful");
+      success = true;
    }
 
    if(!success)

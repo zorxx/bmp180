@@ -20,9 +20,9 @@
 #include <stdbool.h>
 
 #if defined(__linux__)
-   #include "bmp180/i2c_linux.h"
+   #include "bmp180/sys_linux.h"
 #elif defined(ESP_PLATFORM)
-   #include "bmp180/i2c_esp.h"
+   #include "bmp180/sys_esp.h"
 #else
    #error "Supported OS type not detected"
 #endif

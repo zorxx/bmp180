@@ -52,20 +52,20 @@ int main(int argc, char *argv[])
         if(bmp180_Compensate(&v->cal, v->oss, v->uncompensatedTemperature,
            v->uncompensatedPressure, &temperature, &pressure) != 0)
         {
-            MSG("Failed to perform compensation for vector %zu of %zu\n", i+1, vector_count);
+            SDBG("Failed to perform compensation for vector %zu of %zu", i+1, vector_count);
             success = false;
         }
         else
         {
             if(temperature != v->resultTemperature)
             {
-                MSG("Temperature mismatch: expected %" PRIi32 ", received %" PRIi32 "\n",
+                SDBG("Temperature mismatch: expected %" PRIi32 ", received %" PRIi32,
                    v->resultTemperature, temperature);
                 success = false;
             }
             if(pressure != v->resultPressure)
             {
-                MSG("Pressure mismatch: expected %" PRIi32 ", received %" PRIi32 "\n",
+                SDBG("Pressure mismatch: expected %" PRIi32 ", received %" PRIi32,
                    v->resultPressure, pressure);
                 success = false;
             }
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
             float c = (float)temperature/10.0;
             float mmHg = (float)pressure*0.00750062;
             float inHg = (float)pressure*0.0002953;
-            MSG("Test case %zu success: temperature %.2f C, pressure %u pascal, %.2f mmHg. %.2f inHg\n", i+1, c, pressure, mmHg, inHg); 
+            SDBG("Test case %zu success: temperature %.2f C, pressure %u pascal, %.2f mmHg. %.2f inHg", i+1, c, pressure, mmHg, inHg); 
         }
     }
     return 0;

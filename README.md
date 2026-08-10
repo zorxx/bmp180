@@ -21,7 +21,7 @@ Fully-functional example applications for each supported platform can be found i
 Example esp-idf code-snippet:
 ```bash
 #include "bmp180/bmp180.h"
-i2c_lowlevel_config config;
+i2c_lowlevel_config config = {0};
 config.port = I2C_NUM_0;
 config.pin_sda = GPIO_NUM_21;
 config.pin_scl = GPIO_NUM_22;
@@ -41,7 +41,7 @@ if(NULL != ctx)
 Example linux code-snippet:
 ```bash
 #include "bmp180/bmp180.h"
-i2c_lowlevel_config config;
+i2c_lowlevel_config config = {0};
 config.device = "/dev/i2c-0";
 bmp180_t *ctx = bmp180_init(&config, DEVICE_I2C_ADDRESS, BMP180_MODE_HIGH_RESOLUTION);
 if(NULL != ctx)
